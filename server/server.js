@@ -20,7 +20,7 @@ app.post('/todo', (req, res)=>{
         res.send(docs);
     }, (err)=> {
         if(err){
-            res.send(err);
+            res.status(400).send(err);
         }
     });
 });

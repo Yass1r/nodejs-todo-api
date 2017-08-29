@@ -48,7 +48,7 @@ app.get('/todo/:id',(req, res)=> {
         if(err){
             return res.status(404).send(err);
         } if(todo === null){
-            console.log('Record not found in DB.');
+            res.status(404).send('{ "error": "Record not found in DB."}');
         }
             else {
             res.send(JSON.stringify(todo, undefined,2));

@@ -47,7 +47,7 @@ app.get('/todo/:id',(req, res)=> {
         var query_todo = Todo.findById(received_id, (err, todo)=> {
         if(err){
             return res.status(404).send(err);
-        } if(todo == null){
+        } if(todo === null){
             console.log('Record not found in DB.');
         }
             else {

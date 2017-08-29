@@ -48,11 +48,27 @@ app.get('/todo/:id',(req, res)=> {
         if(err){
             return res.status(404).send(err);
         } if(todo === null){
-            res.status(404).send('{ "error": "Record not found in DB."}');
+            res.status(404).send({ error: 'Record not found in DB.'});
         }
             else {
             res.send(JSON.stringify(todo, undefined,2));
         }
+        });
+    }
+});
+
+app.delete('/todo/:id', (req, res) => {
+    var rec_id = req.params.id;
+    var IDvalid = ObjectID.isValid(rec_id);
+    if(!IDvalid){
+        res.status(404).send('ID not valid!');
+    } else {
+        Todo.findByIdAndRemove(rec_id).then((docs)=> {
+            if(docs === null){
+                res.status(404).send('ID not found!');
+            } else {
+                res.send('Id is removed: ' +  docs);
+            }
         });
     }
 });

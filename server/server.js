@@ -2,7 +2,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 var {ObjectID} = require('mongodb');
-var process = require('process');
+const _ = require('lodash');
+
 //local import
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -58,19 +59,45 @@ app.get('/todo/:id',(req, res)=> {
 });
 
 app.delete('/todo/:id', (req, res) => {
-    var rec_id = req.params.id;
-    var IDvalid = ObjectID.isValid(rec_id);
+    var id = req.params.id;
+    var IDvalid = ObjectID.isValid(id);
     if(!IDvalid){
-        res.status(404).send('ID not valid!');
+        return res.status(404).send('ID not valid!');
     } else {
-        Todo.findByIdAndRemove(rec_id).then((docs)=> {
-            if(docs === null){
-                res.status(404).send('ID not found!');
+        Todo.findByIdAndRemove(id).then((todo)=> {
+            if(todo === null){
+                return res.status(404).send('ID not found!');
             } else {
-                res.send('Id is removed: ' +  docs);
+                res.send(todo);
             }
         });
     }
+});
+
+app.patch('/todo/:id', (req, res) => {
+    var id = req.params.id;
+    var check_id = ObjectID.isValid(id);
+    if(!check_id){
+        return res.status(404).send('ID invalid');
+    } else {
+    
+        //pick is useful specailly to pick only two objects text, and completed no others!
+        var body = _.pick(req.body, ['text','completed']);
+    
+        //check compelted values
+        if(_.isBoolean(body.completed) && body.completed){
+            body.completed_at = new Date().getTime();
+        } else {
+            body.completed = false;
+            body.completed_at = null;
+        }
+        Todo.findByIdAndUpdate(id, {$set: body},{new: true}).then((todo) => {
+            res.send(todo);
+        });
+
+        res.send(body);
+    }
+
 });
 
 var port = process.env.PORT || 3000;

@@ -123,6 +123,20 @@ app.post('/user', (req, res)=>{
     );
 });
 
+app.get('/users/me', (req, res)=> {
+    var token = req.header('x-auth');
+
+    Users.findByToken(token).then((user)=> {
+        if(!user){
+            return Promise.reject('No such user!');
+        }
+
+        res.send(user);
+    }).catch((err)=> {
+        res.status(401).send();
+    });
+});
+
 var port = process.env.PORT || 3000;
 
 app.listen(port, () => {

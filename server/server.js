@@ -8,6 +8,7 @@ const _ = require('lodash');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {Users} = require('./models/users');
+var {authentication} = require('./middleware/authentication');
 
 var app = express();
 
@@ -122,19 +123,9 @@ app.post('/user', (req, res)=>{
         }
     );
 });
-
-app.get('/users/me', (req, res)=> {
-    var token = req.header('x-auth');
-
-    Users.findByToken(token).then((user)=> {
-        if(!user){
-            return Promise.reject('No such user!');
-        }
-
-        res.send(user);
-    }).catch((err)=> {
-        res.status(401).send();
-    });
+//private route using above function
+app.get('/users/me', authentication, (req, res)=> {
+    res.send(req.user);
 });
 
 var port = process.env.PORT || 3000;

@@ -15,10 +15,11 @@ var app = express();
 
 app.use(bodyParser.json());
 
-app.post('/todo', (req, res)=>{
+app.post('/todo', authentication, (req, res)=>{
     console.log(`Received new Todo: ${req.body.text}`);
     var received_todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     received_todo.save().then((docs)=>{
@@ -32,8 +33,8 @@ app.post('/todo', (req, res)=>{
 
 
 //fetch all data via get 
-app.get('/todo',(req, res)=> {
-    Todo.find().then((todos)=> {
+app.get('/todo', authentication,(req, res)=> {
+    Todo.find({_creator: req.user._id}).then((todos)=> {
         console.log(todos);
         res.send({todos});
     }, (err) => {

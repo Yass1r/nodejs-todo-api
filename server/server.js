@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 var {ObjectID} = require('mongodb');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 //local import
 var {mongoose} = require('./db/mongoose');
@@ -75,7 +76,7 @@ app.delete('/todo/:id', (req, res) => {
     }
 });
 
-app.patch('/todo/:id', (req, res) => {
+app.patch('/todo/:id',(req, res) => {
     var id = req.params.id;
     var check_id = ObjectID.isValid(id);
     if(!check_id){
@@ -123,9 +124,35 @@ app.post('/user', (req, res)=>{
         }
     );
 });
-//private route using above function
+//private route using authentication function
 app.get('/users/me', authentication, (req, res)=> {
     res.send(req.user);
+});
+
+app.post('/user/login', (req, res)=>  {
+    
+    var body = _.pick(req.body, ['email','password']);
+    var email = body.email;
+    var password = body.password;
+
+   Users.findOne({'email': email}).then((result)=> {
+       if(!result){ 
+           return res.status(400).send('User Not found!');
+        }
+    //user found
+        //retreive hashed pass from db
+        var retreived_user = Users.findOne({ email }).then((user) => {
+            bcrypt.compare(password, user.password, (err, result) => {
+                if(result){
+                    user.generateAuthToken().then((token) => {
+                        res.header('x-auth', token).send(user);                        
+                    });
+                } else {
+                    res.send(400).send();
+                }
+                }); //end comapre
+            }); // end findOne
+    }); // end compare
 });
 
 var port = process.env.PORT || 3000;

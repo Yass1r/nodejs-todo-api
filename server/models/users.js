@@ -56,6 +56,15 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+UserSchema.methods.removeToken = function (token) {
+    var user = this;
+    return user.update({
+        $pull: {
+            tokens: { token }
+        }
+    });
+}
+
 UserSchema.statics.findByToken = function (token) {
     var user = this;
     var decoded;
@@ -96,8 +105,8 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.statics.findByCreds = function (email, password) {
     var User = this;
-
-    return User;
+    User.find
+    
 }
 
 var Users = mongoose.model('Users', UserSchema);

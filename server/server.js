@@ -155,6 +155,14 @@ app.post('/user/login', (req, res)=>  {
     }); // end compare
 });
 
+app.delete('/users/me/token', authentication, (req, res) => {
+    req.user.removeToken(req.token).then(() => {
+        res.send();
+    }, () => {
+        res.status(400).send;
+    });
+});
+
 var port = process.env.PORT || 3000;
 
 app.listen(port, () => {
